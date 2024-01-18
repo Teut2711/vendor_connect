@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  backend:
+    ports:
+      - 8000:8000
+    build: .
+    container_name: vendor-connect-backend
+    environment:
+      - DB_ENGINE=${DB_ENGINE}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+    volumes:
+      - ./:/vendor_connect  
+    restart: on-failure  
+
+
+  db:
+    build: ../postgres
+    container_name: vendor-connect-db
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=${DB_PORT}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    restart: on-failure  
