@@ -4,4 +4,5 @@ module.exports = {
   bracketSpacing: false,
   singleQuote: true,
   trailingComma: 'all',
+  endOfLine: 'lf', // Add this line to set LF as the line ending
 };

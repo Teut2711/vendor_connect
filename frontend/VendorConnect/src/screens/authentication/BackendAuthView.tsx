@@ -31,17 +31,39 @@ interface IAuthResponse {
   expiry: string;
 }
 
-const checkIsTokenExpired = (auth: IAuthResponse) => {
+const checkIsTokenExpired = (
+  auth: IAuthResponse,
+): void | TokenExpiredError | Error => {
   const expiryTimestamp = Date.parse(auth.expiry);
 
   if (!isNaN(expiryTimestamp)) {
     const isTokenExpired = expiryTimestamp - Date.now() < 5 * 60 * 1000;
-    return isTokenExpired;
+    if (isTokenExpired) {
+      throw new TokenExpiredError('Backend api token expired');
+    }
   } else {
-    throw Error('Invalid timestamp format');
+    throw Error('Invalid timestamp format while checking token expiry');
   }
 };
 
+class TokenExpiredError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'TokenExpired';
+  }
+}
+class AuthTokenMissingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthTokenMissingError';
+  }
+}
+class SignInError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'SignInError';
+  }
+}
 const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
   route,
   navigation,
@@ -50,10 +72,10 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const {userType} = route.params;
   useEffect(() => {
-    const performAuthWithBackend = async (
-      googleAuthTokens: IGoogleAuthTokens,
-    ) => {
+    const performAuthWithBackend = async () => {
       try {
+        const googleAuthTokens: IGoogleAuthTokens =
+          await GoogleSignin.getTokens();
         setIsLoading(true);
         const url = `${BACKEND_BASE_URL}/api/auth/login/`;
         const body: IAuthRequestBody = {
@@ -70,6 +92,7 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
         });
         if (!response.ok) {
           const errorData = await response.json();
+          console.log(errorData);
           setErrors(prevErrors => [...prevErrors, errorData.detail]);
         } else {
           const responseData = await response.json();
@@ -88,47 +111,51 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
         setIsLoading(false);
       }
     };
-    const checkIsSignedIn = async () => {
+    const redirectToUserProfile = async () => {
       try {
         const isSignedIn = await GoogleSignin.isSignedIn();
+        if (!isSignedIn) {
+          throw new SignInError('You are not signed in');
+        }
+        let auth = await EncryptedStorage.getItem('auth');
+        if (!auth) {
+          throw new AuthTokenMissingError('Auth Token is Missing');
+        }
 
-        if (isSignedIn) {
-          let auth = await EncryptedStorage.getItem('auth');
-          if (auth) {
-            auth = JSON.parse(auth as string);
+        auth = JSON.parse(auth as string);
 
-            const {verified} = auth as unknown as IAuthResponse;
-            if (!checkIsTokenExpired(auth as unknown as IAuthResponse)) {
-              if (userType === 'vendor') {
-                if (verified) {
-                  navigation.navigate('VENDOR/START');
-                } else {
-                  navigation.navigate('VENDOR/HOME');
-                }
-              } else if (userType === 'customer') {
-                navigation.navigate('CUSTOMER/HOME');
-              } else {
-                throw new Error('Unknown user type: ' + userType);
-              }
-            }
+        const {verified} = auth as unknown as IAuthResponse;
+        checkIsTokenExpired(auth as unknown as IAuthResponse);
+
+        if (userType === 'vendor') {
+          if (!(verified as boolean)) {
+            navigation.navigate('VENDOR/START');
           } else {
-            const googleAuthTokens: IGoogleAuthTokens =
-              await GoogleSignin.getTokens();
-            await performAuthWithBackend(googleAuthTokens);
+            navigation.navigate('VENDOR/HOME');
           }
+        } else if (userType === 'customer') {
+          navigation.navigate('CUSTOMER/HOME');
         } else {
-          throw new Error('You are not signed in with Google');
+          throw new Error('Unknown user type: ' + userType);
         }
       } catch (err) {
-        setErrors(prevErrors => [
-          ...prevErrors,
-          'Error checking google sign in',
-        ]);
+        if (
+          err instanceof TokenExpiredError ||
+          err instanceof AuthTokenMissingError
+        ) {
+          await performAuthWithBackend();
+          await redirectToUserProfile();
+        } else {
+          setErrors(prevErrors => [
+            ...prevErrors,
+            'Error checking google sign in',
+          ]);
+        }
       } finally {
         setIsLoading(false);
       }
     };
-    checkIsSignedIn();
+    redirectToUserProfile();
   }, [userType, navigation]);
   if (isLoading === true) {
     return <ActivityIndicator />;
