@@ -1,88 +1,262 @@
 import React, {useState} from 'react';
-
-import {ProgressSteps, ProgressStep} from 'react-native-progress-steps';
 import {Dropdown} from 'react-native-element-dropdown';
 import {VStack} from '@react-native-material/core';
-import {Text} from 'react-native-paper';
+import {Button, Text, TextInput} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
-import DropdownComponent from '../../common/components/DropdownComponent';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import {useForm, Controller, SubmitErrorHandler} from 'react-hook-form';
+import {useMutation} from '@apollo/client';
+import {CREATE_VENDOR_MUTATION} from './apis/mutations';
 
-const VendorStartPage = () => {
-  const [businessType, setBusinessType] = useState('');
-  const [selectedService, setSelectedService] = useState('');
-  const [selectedProduct, setSelectedProduct] = useState('');
-
-  const dataProduct = [
-    {label: 'Grocery', value: 'grocery'},
-    {label: 'Ice cream', value: 'ice-cream'},
-  ];
-  const dataService = [
-    {label: 'House Maid', value: 'house-maid'},
-    {label: 'Auto Ricksaw', value: 'auto-ricksaw'},
-  ];
-
+const DropdownField = ({lang, data, value, onChange, onBlur}) => {
   return (
-    <VStack fill>
-      <ProgressSteps>
-        <ProgressStep label="Select business type">
-          <DropdownComponent
-            data={[
-              {label: 'Service', value: 'service'},
-              {label: 'Product', value: 'product'},
-            ]}
-            label="What is your business type?"
-            value={businessType}
-            setValue={setBusinessType}
-          />
-        </ProgressStep>
-        <ProgressStep label={`Select your ${businessType}`}>
-          <VStack>
-            {businessType === 'service' && (
-              <DropdownComponent
-                data={dataService}
-                label="Select your service"
-                value={selectedService}
-                setValue={setSelectedService}
-              />
-            )}
-            {businessType === 'Product' && (
-              <DropdownComponent
-                label="Select your product"
-                value={selectedProduct}
-                data={dataProduct}
-                setValue={setSelectedProduct}
-              />
-            )}
-          </VStack>
-        </ProgressStep>
-      </ProgressSteps>
+    <Dropdown
+      style={[styles.dropdown]}
+      containerStyle={[styles.container]}
+      placeholderStyle={[styles.placeholderStyle]}
+      selectedTextStyle={[styles.selectedTextStyle]}
+      itemTextStyle={[styles.itemTextStyle]}
+      data={data}
+      labelField={`label.${lang}`}
+      value={value}
+      maxHeight={300}
+      valueField="value"
+      onBlur={onBlur}
+      // onFocus={() => setIsFocus(true)}
+      onChange={onChange}
+    />
+  );
+};
+
+const VendorStartPage = ({navigation}) => {
+  const [language, setLanguage] = useState('hindi');
+  const [createVendor, {loading, error}] = useMutation(CREATE_VENDOR_MUTATION, {
+    onCompleted: () => {
+      console.log('Vendor created successfully');
+    },
+    onError: error => {
+      console.error('Error creating vendor', error);
+    },
+  });
+  const vendorTypes = [
+    {
+      label: {
+        english: 'Product',
+        hindi: 'सामान बेचने वाले',
+      },
+      value: 'PRODUCT',
+    },
+    // {label: 'Service', value: 'service'},
+  ];
+  const mobility = [
+    {
+      label: {
+        english: 'Moving Vendor',
+        hindi: 'चलता फिरता विक्रेता',
+      },
+      value: 'MOBILE',
+    },
+    {
+      label: {
+        english: 'Stationary Vendor',
+        hindi: 'स्थिर दुकानवाले विक्रेता',
+      },
+      value: 'STATIONARY',
+    },
+  ];
+  const profession = [
+    {
+      label: {
+        english: 'Ice Cream Seller',
+        hindi: 'आइस क्रीम बेचने वाले',
+      },
+      value: 'ICE_CREAM',
+    },
+    {
+      label: {
+        english: 'Juice Seller',
+        hindi: 'जूस बेचने वाले',
+      },
+      value: 'JUICE',
+    },
+    {
+      label: {
+        english: 'Vegetable Seller',
+        hindi: 'सब्जी बेचने वाले',
+      },
+      value: 'VEGETABLE',
+    },
+    {
+      label: {
+        english: 'Fruit Seller',
+        hindi: 'फल बेचने वाले',
+      },
+      value: 'FRUIT',
+    },
+  ];
+
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    control,
+    reset,
+    formState: {errors},
+  } = useForm();
+  const onSubmit = data => {
+    createVendor({
+      variables: {
+        typeValue: 'PRODUCT',
+        mobility: data.mobility,
+        profession: data.profession,
+        // address: null,
+        // location: null,
+      },
+    });
+
+    // navigation.navigate('VENDOR/PRODUCT/HOME');
+  };
+
+  const onError = (errors, e) => {
+    return console.log(errors);
+  };
+  return (
+    <VStack fill p={7} spacing={20}>
+      {/* <VStack>
+        <Text>Select vendor type</Text>
+        <Controller
+          control={control}
+          render={({field: {onChange, onBlur, value}}) => (
+            <DropdownField
+              lang={language}
+              data={vendorTypes}
+              onBlur={onBlur}
+              onChange={({value}) => onChange(value)}
+              value={value}
+            />
+          )}
+          name="vendorType"
+          rules={{required: true}}
+        />
+      </VStack> */}
+      <VStack>
+        <Text>Mobility</Text>
+        <Controller
+          control={control}
+          render={({field: {onChange, onBlur, value}}) => (
+            <DropdownField
+              lang={language}
+              data={mobility}
+              onBlur={onBlur}
+              onChange={({value}) => onChange(value)}
+              value={value}
+            />
+          )}
+          name="mobility"
+          rules={{required: true}}
+        />
+      </VStack>
+      <VStack>
+        <Text>Profession</Text>
+        <Controller
+          control={control}
+          render={({field: {onChange, onBlur, value}}) => (
+            <DropdownField
+              lang={language}
+              data={profession}
+              onBlur={onBlur}
+              onChange={({value}) => onChange(value)}
+              value={value}
+            />
+          )}
+          name="profession"
+          rules={{required: true}}
+        />
+      </VStack>
+      <VStack>
+        <Button
+          style={{marginTop: 20}}
+          mode="contained"
+          icon={({size, color}) => (
+            <Icon name="user" size={size} color={color} />
+          )}
+          buttonColor="#56b9ff"
+          onPress={handleSubmit(onSubmit)}
+          loading={loading}>
+          Create Profile
+        </Button>
+      </VStack>
     </VStack>
   );
 };
+
+// const VendorStartPage = ({navigation}) => {
+//   return (
+//     <VStack fill pt={5} style={{alignItems: 'center'}}>
+//       <Text style={{fontSize: 18, marginBottom: 20}}>
+//         Select Business Type:
+//       </Text>
+//       <VStack fill center spacing={50}>
+//         <Button
+//           mode="contained"
+//           onPress={() => navigation.navigate('VENDOR/PRODUCT/HOME')}
+//           icon={({size, color}) => (
+//             <Icon name="google" size={size} color={color} />
+//           )}>
+//           Services
+//         </Button>
+//         <Button
+//           mode="contained"
+//           onPress={() => navigation.navigate('VENDOR/PRODUCT/HOME')}
+//           icon={({size, color}) => (
+//             <Icon name="google" size={size} color={color} />
+//           )}
+//           style={{marginBottom: 10}}>
+//           Products
+//         </Button>
+//       </VStack>
+//     </VStack>
+//   );
+// };
 const styles = StyleSheet.create({
+  container: {
+    color: 'black',
+    padding: 16,
+  },
   dropdown: {
-    margin: 16,
     height: 50,
-    borderBottomColor: 'gray',
-    borderBottomWidth: 0.5,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
   },
   icon: {
     marginRight: 5,
   },
+  label: {
+    position: 'absolute',
+    backgroundColor: 'white',
+    color: 'black',
+    left: 22,
+    top: 8,
+    zIndex: 999,
+    paddingHorizontal: 8,
+    fontSize: 14,
+  },
   placeholderStyle: {
     fontSize: 16,
+    color: 'blue',
   },
   selectedTextStyle: {
-    fontSize: 16,
+    fontSize: 19,
+    color: 'black',
   },
   iconStyle: {
     width: 20,
     height: 20,
   },
-  inputSearchStyle: {
-    height: 40,
-    fontSize: 16,
+  itemTextStyle: {
+    color: '#000000',
   },
 });
 export default VendorStartPage;

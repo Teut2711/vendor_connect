@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.8",
+    "@apollo/client": "^3.9.4",
     "@react-native-firebase/app": "^18.7.3",
     "@react-native-firebase/auth": "^18.7.3",
     "@react-native-google-signin/google-signin": "^10.1.1",
@@ -24,6 +24,8 @@
     "graphql": "^16.8.1",
     "metro-react-native-babel-preset": "^0.77.0",
     "react": "18.2.0",
+    "react-form-hook": "^0.0.1",
+    "react-hook-form": "^7.49.3",
     "react-native": "0.73.0",
     "react-native-element-dropdown": "^2.10.1",
     "react-native-encrypted-storage": "^4.0.3",

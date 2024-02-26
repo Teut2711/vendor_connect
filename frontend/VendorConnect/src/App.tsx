@@ -7,6 +7,13 @@
 import React, {createContext, useEffect, useState} from 'react';
 import {StyleSheet, View, Button} from 'react-native';
 import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  createHttpLink,
+} from '@apollo/client';
+import {setContext} from '@apollo/client/link/context';
+import {
   PaperProvider,
   MD3LightTheme,
   MD3DarkTheme,
@@ -21,7 +28,9 @@ import VendorCard from './screens/vendor';
 import {VStack} from '@react-native-material/core';
 import GoogleAuthView from './screens/authentication/GoogleAuthView';
 import BackendAuthView from './screens/authentication/BackendAuthView';
-import VendorStartPage from './screens/vendor/StartPage';
+import VendorStartPagee from './screens/vendor/StartPage';
+import ProductVendorPage from './screens/vendor/ProductVendorPage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const darkTheme = {...MD3DarkTheme};
 const lightTheme = {...MD3LightTheme};
@@ -154,8 +163,11 @@ const Screens = () => {
           <Stack.Navigator>
             <Stack.Screen name="LOGIN" component={GoogleAuthView} />
             <Stack.Screen name="BACKEND/AUTH" component={BackendAuthView} />
-            <Stack.Screen name="VENDOR/START" component={VendorStartPage} />
-            <Stack.Screen name="VENDOR/HOME" component={VendorCard} />
+            <Stack.Screen name="VENDOR/START" component={VendorStartPagee} />
+            <Stack.Screen
+              name="VENDOR/PRODUCT/HOME"
+              component={ProductVendorPage}
+            />
             <Stack.Screen name="CUSTOMER/HOME" component={Section} />
           </Stack.Navigator>
         </NavigationContainer>
@@ -165,7 +177,36 @@ const Screens = () => {
 };
 
 function App(): JSX.Element {
-  return <Screens />;
+  const link = createHttpLink({
+    uri: 'http://localhost:8000/api/graphql/vendor', // URL of your GraphQL server
+    credentials: 'include',
+  });
+  const authLink = setContext((_, {headers}) => {
+    return EncryptedStorage.getItem('auth')
+      .then(data => {
+        const token = JSON.parse(data).token;
+        return {
+          headers: {
+            ...headers,
+            Authorization: `Token ${token}`,
+          },
+        };
+      })
+      .catch(err => {
+        console.log('Could not get token', err);
+      });
+  });
+
+  const client = new ApolloClient({
+    link: authLink.concat(link),
+    cache: new InMemoryCache(),
+  });
+  client.cache.reset({discardWatches: true});
+  return (
+    <ApolloProvider client={client}>
+      <Screens />
+    </ApolloProvider>
+  );
 }
 
 const styles = StyleSheet.create({

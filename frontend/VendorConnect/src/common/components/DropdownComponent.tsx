@@ -11,7 +11,12 @@ const MultiSelectComponent = ({data, value, setValue, label}) => {
     return (
       <View style={styles.item}>
         <Text style={styles.selectedTextStyle}>{item.label}</Text>
-        <FontAwesome6 style={styles.icon} color="black" name="check" size={20} />
+        <FontAwesome6
+          style={styles.icon}
+          color="black"
+          name="check"
+          size={20}
+        />
       </View>
     );
   };
