@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {Dropdown} from 'react-native-element-dropdown';
 import {VStack} from '@react-native-material/core';
-import {Button, Text, TextInput} from 'react-native-paper';
+import {Button, Text} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {useForm, Controller, SubmitErrorHandler} from 'react-hook-form';
+import {useForm, Controller} from 'react-hook-form';
 import {useMutation} from '@apollo/client';
 import {CREATE_VENDOR_MUTATION} from './apis/mutations';
 
@@ -105,13 +105,12 @@ const VendorStartPage = ({navigation}) => {
     formState: {errors},
   } = useForm();
   const onSubmit = data => {
+    console.log(data);
     createVendor({
       variables: {
         typeValue: 'PRODUCT',
         mobility: data.mobility,
         profession: data.profession,
-        // address: null,
-        // location: null,
       },
     });
 
@@ -191,34 +190,6 @@ const VendorStartPage = ({navigation}) => {
   );
 };
 
-// const VendorStartPage = ({navigation}) => {
-//   return (
-//     <VStack fill pt={5} style={{alignItems: 'center'}}>
-//       <Text style={{fontSize: 18, marginBottom: 20}}>
-//         Select Business Type:
-//       </Text>
-//       <VStack fill center spacing={50}>
-//         <Button
-//           mode="contained"
-//           onPress={() => navigation.navigate('VENDOR/PRODUCT/HOME')}
-//           icon={({size, color}) => (
-//             <Icon name="google" size={size} color={color} />
-//           )}>
-//           Services
-//         </Button>
-//         <Button
-//           mode="contained"
-//           onPress={() => navigation.navigate('VENDOR/PRODUCT/HOME')}
-//           icon={({size, color}) => (
-//             <Icon name="google" size={size} color={color} />
-//           )}
-//           style={{marginBottom: 10}}>
-//           Products
-//         </Button>
-//       </VStack>
-//     </VStack>
-//   );
-// };
 const styles = StyleSheet.create({
   container: {
     color: 'black',
