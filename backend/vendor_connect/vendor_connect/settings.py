@@ -43,9 +43,11 @@ INSTALLED_APPS = [
     "world",
     "rest_framework",
     "oauth2_provider",
-    "authentication",
     "phonenumber_field",
+    "authentication",
     "knox",
+    "vendor",
+    "customer",
 ]
 
 MIDDLEWARE = [
@@ -154,6 +156,9 @@ OAUTH2_PROVIDER = {
 
 AUTH_USER_MODEL = "authentication.User"
 
-TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = config("TWILIO_PHONE_NUMBER")
+STRAWBERRY_DJANGO = {
+    "FIELD_DESCRIPTION_FROM_HELP_TEXT": True,
+    "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
+}
+CORS_ALLOWED_ORIGINS = ["http://localhost:8081", "http://localhost:5500"]
+CORS_ALLOW_CREDENTIALS = True

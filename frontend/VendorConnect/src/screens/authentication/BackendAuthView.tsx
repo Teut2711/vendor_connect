@@ -26,7 +26,6 @@ interface IAuthRequestBody {
 }
 
 interface IAuthResponse {
-  verified: boolean;
   token: string;
   expiry: string;
 }
@@ -92,7 +91,6 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
         });
         if (!response.ok) {
           const errorData = await response.json();
-          console.log(errorData);
           setErrors(prevErrors => [...prevErrors, errorData.detail]);
         } else {
           const responseData = await response.json();
@@ -101,7 +99,6 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
             JSON.stringify({
               token: responseData.token,
               expiry: responseData.expiry,
-              verified: responseData.verified,
             }),
           );
         }
@@ -124,15 +121,10 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
 
         auth = JSON.parse(auth as string);
 
-        const {verified} = auth as unknown as IAuthResponse;
         checkIsTokenExpired(auth as unknown as IAuthResponse);
 
         if (userType === 'vendor') {
-          if (!(verified as boolean)) {
-            navigation.navigate('VENDOR/START');
-          } else {
-            navigation.navigate('VENDOR/HOME');
-          }
+          navigation.navigate('VENDOR/HOME');
         } else if (userType === 'customer') {
           navigation.navigate('CUSTOMER/HOME');
         } else {

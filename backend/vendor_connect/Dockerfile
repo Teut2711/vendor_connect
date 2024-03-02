@@ -4,8 +4,7 @@ FROM python:3.11
 WORKDIR /vendor_connect
 
 # Copy the requirements file into the container at /vendor_connect
-COPY . /vendor_connect/
-
+COPY . .
 # Install GDAL dependencies
 RUN apt-get update && apt-get install -y libgdal-dev
 
@@ -14,11 +13,6 @@ RUN apt-get update && apt-get install -y libgdal-dev
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-# Copy the current directory contents into the container at /vendor_connect
-COPY . /vendor_connect/
-
 EXPOSE 8000
 
-
-
-ENTRYPOINT ["/vendor_connect/init.sh"]
+ENTRYPOINT ["/bin/bash", "/vendor_connect/init.sh"]

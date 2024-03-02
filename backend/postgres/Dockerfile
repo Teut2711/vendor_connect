@@ -34,7 +34,7 @@ RUN locale-gen en_US.UTF-8
 # Install other requirements
 RUN apt -y install postgresql-client
 RUN  apt -y install systemd
-RUN apt -y install vim nano
+RUN apt -y install vim
 
 COPY docker-entrypoint-initdb.d/* /docker-entrypoint-initdb.d/
 

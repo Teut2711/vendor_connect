@@ -14,6 +14,11 @@ class GoogleOAuth2Authentication(BaseAuthentication):
         id_token_str = data.get("idToken")
         client_id = data.get("clientId")
         user_type = data.get("userType")
+        user_type = (
+            User.UserCategory.VENDOR
+            if user_type == "vendor"
+            else User.UserCategory.CUSTOMER
+        )
 
         if not id_token_str or not client_id:
             return None

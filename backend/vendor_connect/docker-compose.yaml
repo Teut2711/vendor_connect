@@ -17,8 +17,11 @@ services:
       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
     volumes:
-      - ./:/vendor_connect  
+      - ./:/vendor_connect
+        
     restart: on-failure  
+    depends_on:
+      - db
 
 
   db:

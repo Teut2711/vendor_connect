@@ -1,68 +1,79 @@
 import {HStack, VStack} from '@react-native-material/core';
 import React, {useEffect, useState} from 'react';
-import {Alert, BackHandler, Image} from 'react-native';
-import {ActivityIndicator, Avatar, Card, Chip, Text} from 'react-native-paper';
+import {Alert, BackHandler, Image, StyleSheet} from 'react-native';
+import {ActivityIndicator, Button, Card, Chip, Text} from 'react-native-paper';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import BackendAuthView from '../authentication/BackendAuthView';
-const user = {
-  id: '',
-  firstName: 'Rajiv',
-  lastName: 'ABC',
-  photo: '',
-  type: 'VEGETABLE_SELLER',
-  skills: ['HOME_DELIVERY', ''],
-  shop: {
-    id: '',
-    name: 'Rajiv Store',
-    location: {
-      address: '567 Sector 9',
-      coordinates: {
-        latitude: '',
-        longitude: '',
-      },
-    },
-  },
-};
+import {useQuery} from '@apollo/client';
+import {GET_VENDOR_QUERY} from './apis/queries';
+import {Avatar} from '@react-native-material/core';
 
-const LeftContent = props => (
-  <Avatar.Image
-    size={24}
-    source={require('../../assets/images/avatar_male.png')}
-  />
-);
+const VendorCard = ({route, navigation}) => {
+  const {data, loading, error} = useQuery(GET_VENDOR_QUERY);
+  if (loading) {
+    return <ActivityIndicator />;
+  }
+  if (error) {
+    return error.graphQLErrors.map(({message}, i) => (
+      <Text variant="bodyLarge" style={{color: 'red'}} key={i}>
+        {message}
+      </Text>
+    ));
+  }
 
-const VendorCard = ({route}) => {
+  if (!data || !data.getVendorDetails) {
+    navigation.navigate('VENDOR/START');
+    return null;
+  }
+  // if (data == null) {
+  //   navigation.navigate('VENDOR/START');
+  // }
+  const {user, typeValue, mobility, profession} = data.getVendorDetails;
   return (
-    <VStack>
-      <Card>
-        <Card.Title
-          title={`${user.firstName} ${user.lastName}`}
-          subtitle={`${user.shop.name}`}
-          left={LeftContent}
-        />
-        {/* <Card.Actions>
-          <Button>Cancel</Button>
-          <Button>Ok</Button>
-        </Card.Actions> */}
-      </Card>
-      <HStack>
-        <Chip
-          textStyle={{color: 'white'}}
-          style={{backgroundColor: 'black', color: 'white'}}
-          icon={() => <FontAwesome6 name={'lemon'} solid />}
-          onPress={() => console.log('Pressed')}>
-          Vegetable
-        </Chip>
-        <Chip
-          textStyle={{color: 'white'}}
-          style={{backgroundColor: 'black', color: 'white'}}
-          icon={() => <FontAwesome6 name={'house'} solid />}
-          onPress={() => console.log('Pressed')}>
-          Home Delivery
-        </Chip>
-      </HStack>
+    <VStack fill spacing={4} p={5} m={2}>
+      <VStack>
+        <HStack spacing={4}>
+          <Avatar image={{uri: user.photo.name}} />
+          <VStack>
+            <Text variant="displaySmall">{`${user.firstName} ${user.lastName}`}</Text>
+            <Text variant="bodyLarge">{profession}</Text>
+          </VStack>
+        </HStack>
+        <HStack>
+          <Chip
+            textStyle={{color: 'white'}}
+            style={{backgroundColor: 'black', color: 'white'}}
+            icon={() => <FontAwesome6 name={'lemon'} solid />}
+            onPress={() => console.log('Pressed')}>
+            Vegetable
+          </Chip>
+          <Chip
+            textStyle={{color: 'white'}}
+            style={{backgroundColor: 'black', color: 'white'}}
+            icon={() => <FontAwesome6 name={'house'} solid />}
+            onPress={() => console.log('Pressed')}>
+            Home Delivery
+          </Chip>
+        </HStack>
+      </VStack>
+      <Button onPress={() => navigation.navigate('VENDOR/PRODUCT')}>
+        Modify Product List
+      </Button>
     </VStack>
   );
 };
 
 export default VendorCard;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  card: {
+    width: '100%',
+    elevation: 4, // shadow depth
+    borderRadius: 10,
+  },
+});

@@ -29,7 +29,7 @@ import {VStack} from '@react-native-material/core';
 import GoogleAuthView from './screens/authentication/GoogleAuthView';
 import BackendAuthView from './screens/authentication/BackendAuthView';
 import VendorStartPagee from './screens/vendor/StartPage';
-import ProductVendorPage from './screens/vendor/ProductVendorPage';
+import ProductManipulationPage from './screens/vendor/ProductManipulationPage';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
 const darkTheme = {...MD3DarkTheme};
@@ -164,9 +164,10 @@ const Screens = () => {
             <Stack.Screen name="LOGIN" component={GoogleAuthView} />
             <Stack.Screen name="BACKEND/AUTH" component={BackendAuthView} />
             <Stack.Screen name="VENDOR/START" component={VendorStartPagee} />
+            <Stack.Screen name="VENDOR/HOME" component={VendorCard} />
             <Stack.Screen
-              name="VENDOR/PRODUCT/HOME"
-              component={ProductVendorPage}
+              name="VENDOR/PRODUCT"
+              component={ProductManipulationPage}
             />
             <Stack.Screen name="CUSTOMER/HOME" component={Section} />
           </Stack.Navigator>

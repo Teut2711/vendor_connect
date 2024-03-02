@@ -1,18 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.forms import ValidationError
-from django.contrib.postgres.fields import ArrayField, JSONField
 from django.utils.translation import gettext as _
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.contrib.gis.db import models as geo_models
 from django.core.validators import EmailValidator
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django_choices_field import TextChoicesField
 import uuid
 
 
 class User(AbstractUser):
-    class UserType(models.TextChoices):
+    class UserCategory(models.TextChoices):
         VENDOR = "V", "vendor"
         CUSTOMER = "C", "customer"
 
@@ -24,7 +21,7 @@ class User(AbstractUser):
         help_text="6 digit otp.",
     )
     photo = models.ImageField(upload_to="user_photos/", null=True)
-    type_value = models.CharField(max_length=10, choices=UserType.choices, null=False)
+    type_value = TextChoicesField(choices_enum=UserCategory, null=True)
     rating = models.PositiveIntegerField(
         default=None,
         validators=[MinValueValidator(1), MaxValueValidator(5)],

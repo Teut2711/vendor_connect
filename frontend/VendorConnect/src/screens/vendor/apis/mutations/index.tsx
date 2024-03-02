@@ -14,7 +14,27 @@ export const CREATE_VENDOR_MUTATION = gql`
       }
     ) {
       mobility
-      profession
+    }
+  }
+`;
+export const CREATE_PRODUCT_MUTATION = gql`
+  mutation CreateProduct(
+    $name: String!
+    $description: String!
+    $price: PriceInput!
+    $photo: Upload
+    $quantity: QuantityInput!
+  ) {
+    createProduct(
+      partialProduct: {
+        name: $name
+        description: $description
+        price: $price
+        photo: $photo
+        quantity: $quantity
+      }
+    ) {
+      name
     }
   }
 `;
