@@ -128,7 +128,7 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
         } else if (userType === 'customer') {
           navigation.navigate('CUSTOMER/HOME');
         } else {
-          throw new Error('Unknown user type: ' + userType);
+          throw new Error(`Unknown user type: ${userType}`);
         }
       } catch (err) {
         if (
@@ -143,12 +143,14 @@ const BackendAuthView: React.FC<IBackendAuthViewProps> = ({
             'Error checking google sign in',
           ]);
         }
-      } finally {
-        setIsLoading(false);
       }
+      // finally {
+      //   setIsLoading(false);
+      // }
     };
     redirectToUserProfile();
   }, [userType, navigation]);
+
   if (isLoading === true) {
     return <ActivityIndicator />;
   } else if (errors.length > 0) {

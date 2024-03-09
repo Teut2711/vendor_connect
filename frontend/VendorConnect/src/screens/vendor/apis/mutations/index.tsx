@@ -6,14 +6,16 @@ export const CREATE_VENDOR_MUTATION = gql`
     $mobility: VendorMobilityCategory
     $profession: VendorProfessionCategory
   ) {
-    createVendor(
+    vendor(
       partialVendor: {
         typeValue: $typeValue
         mobility: $mobility
         profession: $profession
       }
     ) {
-      mobility
+      vendor {
+        mobility
+      }
     }
   }
 `;
@@ -22,10 +24,10 @@ export const CREATE_PRODUCT_MUTATION = gql`
     $name: String!
     $description: String!
     $price: PriceInput!
-    $photo: Upload
+    $photo: String!
     $quantity: QuantityInput!
   ) {
-    createProduct(
+    product(
       partialProduct: {
         name: $name
         description: $description

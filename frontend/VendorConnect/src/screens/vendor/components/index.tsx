@@ -47,16 +47,23 @@ const AddProductModal = ({modalVisible, handleModalVisible}) => {
   }
 
   const onSubmit = async data => {
+    async function blobTobase64(blob) {
+      return new Promise((resolve, _) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    }
     const file = await (camera.current as Camera).takePhoto();
     const result = await fetch(`file://${file.path}`);
     const photo = await result.blob();
-    console.log(data, photo); // Do something with the form data
+    const base64String = await blobTobase64(photo);
     createProduct({
       variables: {
         name: data.productName,
         price: {value: Number(data.productPrice), currency: 'INR'},
         quantity: {value: Number(data.productQuantity), units: 'KG'},
-        photo: photo,
+        photo: base64String,
         description: '',
       },
     });

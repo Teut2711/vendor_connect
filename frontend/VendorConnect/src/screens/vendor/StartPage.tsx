@@ -105,7 +105,6 @@ const VendorStartPage = ({navigation}) => {
     formState: {errors},
   } = useForm();
   const onSubmit = data => {
-    console.log(data);
     createVendor({
       variables: {
         typeValue: 'PRODUCT',
@@ -114,7 +113,7 @@ const VendorStartPage = ({navigation}) => {
       },
     });
 
-    // navigation.navigate('VENDOR/PRODUCT/HOME');
+    navigation.navigate('VENDOR/HOME');
   };
 
   const onError = (errors, e) => {

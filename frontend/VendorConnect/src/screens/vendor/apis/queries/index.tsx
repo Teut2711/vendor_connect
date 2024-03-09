@@ -2,7 +2,7 @@ import {gql} from '@apollo/client';
 
 export const GET_VENDOR_QUERY = gql`
   query GetVendor {
-    getVendorDetails {
+    vendor {
       user {
         firstName
         lastName

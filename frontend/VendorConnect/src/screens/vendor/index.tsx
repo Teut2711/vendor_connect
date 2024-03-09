@@ -21,14 +21,14 @@ const VendorCard = ({route, navigation}) => {
     ));
   }
 
-  if (!data || !data.getVendorDetails) {
+  if (!data || !data.vendor) {
     navigation.navigate('VENDOR/START');
     return null;
   }
   // if (data == null) {
   //   navigation.navigate('VENDOR/START');
   // }
-  const {user, typeValue, mobility, profession} = data.getVendorDetails;
+  const {user, typeValue, mobility, profession} = data.vendor;
   return (
     <VStack fill spacing={4} p={5} m={2}>
       <VStack>

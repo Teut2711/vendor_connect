@@ -92,10 +92,10 @@ const ProductManipulationPage = () => {
           modalVisible={modalVisible}
           handleModalVisible={(p: boolean) => setModalVisible(p)}
         />
-        <ProductCard />
         <Button mode="contained" onPress={() => setModalVisible(true)}>
-          Add Product
+          Add new Product
         </Button>
+        <ProductCard />
       </VStack>
     </VStack>
   );
