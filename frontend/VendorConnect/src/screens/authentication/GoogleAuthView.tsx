@@ -32,6 +32,7 @@ const GoogleAuthView: React.FC<GoogleAuthViewProps> = ({navigation}) => {
     try {
       setIsLoading(true);
       const {user: userInfo} = await GoogleSignin.signInSilently();
+      console.log(userInfo);
       setUser(userInfo);
       setIsLoading(false);
     } catch (err) {

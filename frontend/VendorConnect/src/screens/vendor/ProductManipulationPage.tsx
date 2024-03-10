@@ -33,6 +33,7 @@ const ProductCard = () => {
           uri: 'https://t4.ftcdn.net/jpg/02/56/59/09/240_F_256590939_sOJseFyxZjw268kbjsGIRSWiJdJTGJkz.jpg',
         }}
         width={50}
+        height={50}
       />
       <VStack spacing={4}>
         <Controller

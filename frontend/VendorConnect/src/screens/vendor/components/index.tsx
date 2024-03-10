@@ -17,6 +17,10 @@ import {
 import {VStack} from '@react-native-material/core';
 import {CREATE_PRODUCT_MUTATION} from '../apis/mutations';
 import {useMutation} from '@apollo/client';
+import {ReactNativeFile} from 'apollo-upload-client';
+import {utils} from '@react-native-firebase/app';
+import storage from '@react-native-firebase/storage';
+import voca from 'voca';
 
 const AddProductModal = ({modalVisible, handleModalVisible}) => {
   const {hasPermission, requestPermission} = useCameraPermission();
@@ -24,6 +28,11 @@ const AddProductModal = ({modalVisible, handleModalVisible}) => {
   const [createProduct, {loading, error}] = useMutation(
     CREATE_PRODUCT_MUTATION,
     {
+      context: {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
       onCompleted: () => {
         console.log('Vendor created successfully');
       },
@@ -47,29 +56,24 @@ const AddProductModal = ({modalVisible, handleModalVisible}) => {
   }
 
   const onSubmit = async data => {
-    async function blobTobase64(blob) {
-      return new Promise((resolve, _) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      });
-    }
+    const productName = voca.slugify(data.productName);
+    const imagePath = `/vendor/product/${'vishesh'}/${productName}.png`;
+    const reference = storage().ref(imagePath);
     const file = await (camera.current as Camera).takePhoto();
-    const result = await fetch(`file://${file.path}`);
-    const photo = await result.blob();
-    const base64String = await blobTobase64(photo);
+    await reference.putFile(`file://${file.path}`);
+
     createProduct({
       variables: {
         name: data.productName,
         price: {value: Number(data.productPrice), currency: 'INR'},
         quantity: {value: Number(data.productQuantity), units: 'KG'},
-        photo: base64String,
-        description: '',
+        photo: imagePath,
+        description: data.productDescription,
       },
     });
 
-    handleModalVisible(false); // Close the modal after submission
-    reset(); // Reset form fields
+    // handleModalVisible(false); // Close the modal after submission
+    // reset(); // Reset form fields
   };
 
   return (
@@ -145,6 +149,22 @@ const AddProductModal = ({modalVisible, handleModalVisible}) => {
               />
             )}
             name="productQuantity"
+            rules={{required: true}}
+            defaultValue=""
+          />
+          <Controller
+            control={control}
+            render={({field: {onChange, onBlur, value}}) => (
+              <TextInput
+                style={styles.input}
+                mode="outlined"
+                label="Product Description"
+                value={value}
+                onBlur={onBlur}
+                onChangeText={text => onChange(text)}
+              />
+            )}
+            name="productDescription"
             rules={{required: true}}
             defaultValue=""
           />
