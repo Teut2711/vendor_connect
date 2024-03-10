@@ -66,7 +66,8 @@ class DjangoAsyncGraphQLView(AsyncGraphQLView, APIView):
                 status=e.status_code,
             )
         except Exception as exc:
+            print(exc)
             return HttpResponse(
                 content=str(exc),
-                status=401,
+                status=500,
             )

@@ -14,13 +14,18 @@ class Vendor:
     address: auto
 
 
+@strawberry_django.type(models.ProductBasedVendor)
+class ProductBasedVendor:
+    vendor: "Vendor"
+
+
+@strawberry_django.type(models.ServiceBasedVendor)
+class ServiceBasedVendor:
+    vendor: "Vendor"
+
+
 @strawberry_django.input(models.Vendor, partial=True)
 class VendorPartialInput:
     type_value: auto
     mobility: auto
     profession: auto
-
-
-@strawberry_django.type(models.ProductBasedVendor)
-class ProductBasedVendor:
-    vendor: auto

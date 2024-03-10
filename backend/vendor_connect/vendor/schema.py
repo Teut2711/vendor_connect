@@ -1,4 +1,4 @@
-from typing import Optional, cast
+from typing import Optional, Union, cast
 
 import vendor.schemas.product as product_schema
 import vendor.schemas.vendor as vendor_schema
@@ -12,31 +12,52 @@ from strawberry.types import Info
 class Mutation:
 
     @strawberry.mutation
-    async def create_vendor(
+    async def vendor(
         self,
         partialVendor: vendor_schema.VendorPartialInput,
         info: Info,
-    ) -> vendor_schema.Vendor:
-        vendor_instance = await vendor_models.ProductBasedVendor.objects.create(
-            vendor=vendor_models.Vendor.objects.acreate(
-                user=info.context.request.user,
-                type_value=partialVendor.type_value,
-                mobility=partialVendor.mobility,
-                profession=partialVendor.profession,
+    ) -> vendor_schema.ProductBasedVendor:
+        vendor_instance = await vendor_models.Vendor.objects.acreate(
+            user=info.context.request.user,
+            type_value=partialVendor.type_value,
+            mobility=partialVendor.mobility,
+            profession=partialVendor.profession,
+        )
+        if partialVendor.type_value == vendor_models.Vendor.VendorTypeCategory.PRODUCT:
+
+            typed_vendor = await vendor_models.ProductBasedVendor.objects.acreate(
+                vendor=vendor_instance
             )
-        )
-        return cast(
-            vendor_schema.Vendor,
-            vendor_instance,
-        )
+            print(
+                cast(
+                    vendor_schema.ProductBasedVendor,
+                    typed_vendor,
+                )
+            )
+            return cast(
+                vendor_schema.ProductBasedVendor,
+                typed_vendor,
+            )
+        elif (
+            partialVendor.type_value == vendor_models.Vendor.VendorTypeCategory.SERVICE
+        ):
+
+            typed_vendor = await vendor_models.ServiceBasedVendor.objects.acreate(
+                vendor=vendor_instance
+            )
+            return cast(
+                vendor_schema.ServiceBasedVendor,
+                typed_vendor,
+            )
+        else:
+            raise ValueError("Unknown vendor type")
 
     @strawberry.mutation
-    async def create_product(
+    async def product(
         self,
         partialProduct: product_schema.ProductPartialInput,
         info: Info,
     ) -> product_schema.Product:
-        print(partialProduct.photo)
         vendor = await vendor_models.Vendor.objects.aget(user=info.context.request.user)
         product_based_vendor = await vendor_models.ProductBasedVendor.objects.aget(
             vendor=vendor
@@ -46,6 +67,7 @@ class Mutation:
             vendor=product_based_vendor,
             name=partialProduct.name,
             description=partialProduct.description,
+            photo=partialProduct.photo,
             details={
                 "cost": {
                     "price": strawberry.asdict(partialProduct.price),
@@ -53,16 +75,13 @@ class Mutation:
                 }
             },
         )
-        return cast(
-            vendor_schema.Product,
-            product_instance,
-        )
+        return cast(product_schema.Product, product_instance)
 
 
 @strawberry.type
 class Query:
     @strawberry.field
-    async def get_vendor_details(
+    async def vendor(
         self,
         info: Info,
     ) -> Optional[vendor_schema.Vendor]:

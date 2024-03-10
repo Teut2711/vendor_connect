@@ -34,11 +34,11 @@ class Vendor(models.Model):
 
 
 class ServiceBasedVendor(models.Model):
-    vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE)
+    vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE, primary_key=True)
 
 
 class ProductBasedVendor(models.Model):
-    vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE)
+    vendor = models.OneToOneField(Vendor, on_delete=models.CASCADE, primary_key=True)
 
 
 class Order(models.Model):
@@ -77,8 +77,7 @@ class Quantity(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=20)
-    photo = models.ImageField(upload_to="user_photos/", null=True)
-
+    photo = models.URLField()
     description = models.CharField(max_length=200)
     details = models.JSONField(default=dict)
     vendor = models.ForeignKey(

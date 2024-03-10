@@ -54,4 +54,4 @@ class ProductPartialInput:
     description: auto
     price: "PriceInput"
     quantity: "QuantityInput"
-    photo: auto
+    photo: str
